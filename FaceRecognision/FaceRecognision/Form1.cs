@@ -20,25 +20,27 @@ namespace FaceRecognision
 
         private Capture _cap;
         private CascadeClassifier _cascadeClassifier;
+        private CascadeClassifier _cascadeClassifier2;
+        private static bool doWork = true;
 
         public Form1()
         {
             InitializeComponent();
+            _cap = new Capture();
 
 
         }
 
         private void StartRecognision(object sender, EventArgs e)
         {
-
-            _cap = new Capture();
+            doWork = true;
 
             Task.Factory.StartNew(BackgroundWorkerDoWork, null);
             Thread.Sleep(0);
         }
         void BackgroundWorkerDoWork(object args)
         {
-            while (true)
+            while (doWork)
             {
                 this.BeginInvoke(new MethodInvoker(delegate
                 {
@@ -48,16 +50,22 @@ namespace FaceRecognision
 
 
                     _cascadeClassifier = new CascadeClassifier(Application.StartupPath + "\\haarcascade_frontalface_default.xml");
+                    _cascadeClassifier2 = new CascadeClassifier(Application.StartupPath + "\\haarcascade_eye.xml");
                     using (var imageFrame = _cap.QueryFrame().ToImage<Bgr, Byte>())
                     {
                         if (imageFrame != null)
                         {
                             var grayframe = imageFrame.Convert<Gray, byte>();
                             var faces = _cascadeClassifier.DetectMultiScale(grayframe, 1.1, 10, Size.Empty); //the actual face detection happens here
+                            var eyes = _cascadeClassifier2.DetectMultiScale(grayframe, 1.1, 10, Size.Empty);
                             foreach (var face in faces)
                             {
                                 imageFrame.Draw(face, new Bgr(Color.BurlyWood), 3); //the detected face(s) is highlighted here using a box that is drawn around it/them
 
+                            }
+                            foreach (var eye in eyes)
+                            {
+                                imageFrame.Draw(eye, new Bgr(Color.Blue), 1);
                             }
                         }
                         imgCamUser.Image = imageFrame;
@@ -68,24 +76,10 @@ namespace FaceRecognision
             }
         }
 
-
-    }
-    public static class ControlExtensions
-    {
-        public static void InvokeIfRequired(this Control control, Action action)
+        private void StopRecognision(object sender, EventArgs e)
         {
-            if (control.InvokeRequired)
-                control.Invoke(action);
-            else
-                action();
-        }
-        public static void InvokeIfRequired<T>(this Control control, Action<T> action, T parameter)
-        {
-            if (control.InvokeRequired)
-                control.Invoke(action, parameter);
-            else
-                action(parameter);
+            doWork = false;
+            imgCamUser.Image = null;
         }
     }
-
 }
