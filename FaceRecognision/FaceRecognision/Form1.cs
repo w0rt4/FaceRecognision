@@ -12,6 +12,7 @@ using Emgu.Util;
 using Emgu.CV.Structure;
 using Emgu.CV.CvEnum;
 using System.Threading;
+using System.IO;
 
 namespace FaceRecognision
 {
@@ -22,6 +23,9 @@ namespace FaceRecognision
         private CascadeClassifier _cascadeClassifier;
         private CascadeClassifier _cascadeClassifier2;
         private static bool doWork = true;
+        private static PersonsEntities1 persons = new PersonsEntities1();
+        public Image<Bgr, byte> ImageFrame;
+        Faces face = new Faces();
 
         public Form1()
         {
@@ -57,17 +61,18 @@ namespace FaceRecognision
                         {
                             var grayframe = imageFrame.Convert<Gray, byte>();
                             var faces = _cascadeClassifier.DetectMultiScale(grayframe, 1.1, 10, Size.Empty); //the actual face detection happens here
-                            var eyes = _cascadeClassifier2.DetectMultiScale(grayframe, 1.1, 10, Size.Empty);
+                          //  var eyes = _cascadeClassifier2.DetectMultiScale(grayframe, 1.1, 10, Size.Empty);
                             foreach (var face in faces)
                             {
                                 imageFrame.Draw(face, new Bgr(Color.BurlyWood), 3); //the detected face(s) is highlighted here using a box that is drawn around it/them
 
                             }
-                            foreach (var eye in eyes)
+                           /* foreach (var eye in eyes)
                             {
                                 imageFrame.Draw(eye, new Bgr(Color.Blue), 1);
-                            }
+                            }*/
                         }
+                        ImageFrame = imageFrame.Copy();
                         imgCamUser.Image = imageFrame;
                     }
                 })
@@ -81,5 +86,64 @@ namespace FaceRecognision
             doWork = false;
             imgCamUser.Image = null;
         }
+
+        private void CaptureFace(object sender, EventArgs e)
+        {
+            doWork = false;
+           
+            var faceToSave = new Image<Gray, byte>(ImageFrame.Bitmap);
+            Byte[] file;
+
+
+            var username = "test_subject";
+            var filePath = Application.StartupPath + String.Format("/{0}.bmp", username);
+            faceToSave.ToBitmap().Save(filePath);
+            using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            {
+                using (var reader = new BinaryReader(stream))
+                {
+                    file = reader.ReadBytes((int)stream.Length);
+                }
+            }
+         
+            face.Id = 1;
+            face.UserName = username;
+            face.FaceSample = file;
+
+            //persons.Faces.Add(face);
+            //persons.SaveChanges();
+            //save data
+
+            RecognizerEngine r = new RecognizerEngine(null);
+            r.TrainRecognizer(face);
+
+
+        }
+
+        private void RecognizeFace(object sender, EventArgs e)
+        {
+            doWork = false;
+
+            var faceToSave = new Image<Gray, byte>(ImageFrame.Bitmap);
+            Byte[] file;
+
+
+            var username = "test_subject";
+            var filePath = Application.StartupPath + String.Format("/{0}.bmp", username);
+            faceToSave.ToBitmap().Save(filePath);
+            using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            {
+                using (var reader = new BinaryReader(stream))
+                {
+                    file = reader.ReadBytes((int)stream.Length);
+                }
+            }
+
+
+            RecognizerEngine r = new RecognizerEngine(null);
+            r.TrainRecognizer(face);
+            int result = r.RecognizeUser(faceToSave);
+        }
     }
 }
+    
