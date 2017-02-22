@@ -13,10 +13,10 @@ namespace FaceRecognision
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
     
-    public partial class PersonsEntities1 : DbContext
+    public partial class PersonsEntities : DbContext
     {
-        public PersonsEntities1()
-            : base("name=PersonsEntities1")
+        public PersonsEntities()
+            : base("name=PersonsEntities")
         {
         }
     

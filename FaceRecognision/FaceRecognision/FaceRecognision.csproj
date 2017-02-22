@@ -100,22 +100,22 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Faces.cs">
-      <DependentUpon>FacesDataModel.tt</DependentUpon>
+      <DependentUpon>FacesDBModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="FacesDataModel.Context.cs">
+    <Compile Include="FacesDBModel.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>FacesDataModel.Context.tt</DependentUpon>
+      <DependentUpon>FacesDBModel.Context.tt</DependentUpon>
     </Compile>
-    <Compile Include="FacesDataModel.cs">
+    <Compile Include="FacesDBModel.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>FacesDataModel.tt</DependentUpon>
+      <DependentUpon>FacesDBModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="FacesDataModel.Designer.cs">
+    <Compile Include="FacesDBModel.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>FacesDataModel.edmx</DependentUpon>
+      <DependentUpon>FacesDBModel.edmx</DependentUpon>
     </Compile>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
@@ -138,12 +138,12 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <EntityDeploy Include="FacesDataModel.edmx">
+    <EntityDeploy Include="FacesDBModel.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>FacesDataModel.Designer.cs</LastGenOutput>
+      <LastGenOutput>FacesDBModel.Designer.cs</LastGenOutput>
     </EntityDeploy>
-    <None Include="FacesDataModel.edmx.diagram">
-      <DependentUpon>FacesDataModel.edmx</DependentUpon>
+    <None Include="FacesDBModel.edmx.diagram">
+      <DependentUpon>FacesDBModel.edmx</DependentUpon>
     </None>
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
@@ -161,15 +161,15 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="FacesDataModel.Context.tt">
+    <Content Include="FacesDBModel.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>FacesDataModel.edmx</DependentUpon>
-      <LastGenOutput>FacesDataModel.Context.cs</LastGenOutput>
+      <DependentUpon>FacesDBModel.edmx</DependentUpon>
+      <LastGenOutput>FacesDBModel.Context.cs</LastGenOutput>
     </Content>
-    <Content Include="FacesDataModel.tt">
+    <Content Include="FacesDBModel.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>FacesDataModel.edmx</DependentUpon>
-      <LastGenOutput>FacesDataModel.cs</LastGenOutput>
+      <DependentUpon>FacesDBModel.edmx</DependentUpon>
+      <LastGenOutput>FacesDBModel.cs</LastGenOutput>
     </Content>
     <Content Include="Persons.mdf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

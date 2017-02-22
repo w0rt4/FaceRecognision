@@ -23,9 +23,8 @@ namespace FaceRecognision
         private CascadeClassifier _cascadeClassifier;
         private CascadeClassifier _cascadeClassifier2;
         private static bool doWork = true;
-        private static PersonsEntities1 persons = new PersonsEntities1();
+        private static PersonsEntities persons = new PersonsEntities();
         public Image<Bgr, byte> ImageFrame;
-        Faces face = new Faces();
 
         public Form1()
         {
@@ -105,17 +104,27 @@ namespace FaceRecognision
                     file = reader.ReadBytes((int)stream.Length);
                 }
             }
-         
-            face.Id = 1;
-            face.UserName = username;
-            face.FaceSample = file;
 
-            //persons.Faces.Add(face);
-            //persons.SaveChanges();
+            int id = 0;
+            if(persons.Faces.Count() > 0)
+            {
+                id = (from faces in persons.Faces
+                      where faces.Id != null
+                      select faces.Id).Max();
+            }
+            id++;
+            Faces face = new Faces();
+            face.Id = id;
+            face.UserName = username;
+            face.FaceSample = file ;
+
+            persons.Faces.Add(face);
+            persons.SaveChanges();  //no updates 
             //save data
 
             RecognizerEngine r = new RecognizerEngine(null);
             r.TrainRecognizer(face);
+ 
 
 
         }
@@ -141,7 +150,6 @@ namespace FaceRecognision
 
 
             RecognizerEngine r = new RecognizerEngine(null);
-            r.TrainRecognizer(face);
             int result = r.RecognizeUser(faceToSave);
         }
     }
