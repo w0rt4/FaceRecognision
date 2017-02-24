@@ -24,18 +24,20 @@ namespace FaceRecognision
             _faceRecognizer = new EigenFaceRecognizer(80, double.PositiveInfinity);
         }
 
-        public bool TrainRecognizer(Faces face)
+        public bool TrainRecognizer(List<Faces> faces)
         {
             
-                var faceImages = new Image<Gray, byte>[1];
-                var faceLabels = new int[1];
-                for (int i = 0; i < 1; i++)
+                var faceImages = new Image<Gray, byte>[faces.Count];
+                var faceLabels = new int[faces.Count];
+                int counter = 0;
+                foreach (var face in faces)
                 {
                     Stream stream = new MemoryStream();
                     stream.Write(face.FaceSample, 0,face.FaceSample.Length);
                     var faceImage = new Image<Gray, byte>(new Bitmap(stream));
-                    faceImages[i] = faceImage.Resize(100,100,Inter.Cubic);
-                    faceLabels[i] = face.Id;
+                    faceImages[counter] = faceImage.Resize(100,100,Inter.Cubic);
+                    faceLabels[counter] = face.Id;
+                    counter++;
                 }
                 _faceRecognizer.Train(faceImages, faceLabels);
                 _faceRecognizer.Save(_recognizerFilePath);

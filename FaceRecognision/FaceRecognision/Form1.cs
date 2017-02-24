@@ -13,6 +13,7 @@ using Emgu.CV.Structure;
 using Emgu.CV.CvEnum;
 using System.Threading;
 using System.IO;
+using System.Xml.Serialization;
 
 namespace FaceRecognision
 {
@@ -20,16 +21,19 @@ namespace FaceRecognision
     {
 
         private Capture _cap;
+        public string username = "";
         private CascadeClassifier _cascadeClassifier;
         private CascadeClassifier _cascadeClassifier2;
         private static bool doWork = true;
         private static PersonsEntities persons = new PersonsEntities();
         public Image<Bgr, byte> ImageFrame;
+        public List<Faces> faces = new List<Faces>();
 
         public Form1()
         {
             InitializeComponent();
             _cap = new Capture();
+            Load();
 
 
         }
@@ -93,8 +97,13 @@ namespace FaceRecognision
             var faceToSave = new Image<Gray, byte>(ImageFrame.Bitmap);
             Byte[] file;
 
+            Form2 form2 = new Form2();
+            if(form2.ShowDialog()==DialogResult.OK)
+            {
+                MessageBox.Show("Sample " + form2.name + " was captured");
+            }
 
-            var username = "test_subject";
+            username = form2.name;
             var filePath = Application.StartupPath + String.Format("/{0}.bmp", username);
             faceToSave.ToBitmap().Save(filePath);
             using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
@@ -106,24 +115,40 @@ namespace FaceRecognision
             }
 
             int id = 0;
-            if(persons.Faces.Count() > 0)
-            {
-                id = (from faces in persons.Faces
-                      where faces.Id != null
-                      select faces.Id).Max();
-            }
-            id++;
+            /* if(persons.Faces.Count() > 0)
+             {
+                 id = (from faces in persons.Faces
+                       where faces.Id != null
+                       select faces.Id).Max();
+             }
+             id++;*/
+            id = faces.Count ;
             Faces face = new Faces();
             face.Id = id;
             face.UserName = username;
             face.FaceSample = file ;
 
-            persons.Faces.Add(face);
-            persons.SaveChanges();  //no updates 
+          /*  using (var dbContextTransaction = persons.Database.BeginTransaction())
+            {
+                try
+                {
+                    persons.Faces.Add(face);
+                    persons.SaveChanges();
+                    dbContextTransaction.Commit();
+                }
+                catch(Exception)
+                {
+                    dbContextTransaction.Rollback();
+                    throw;
+                }
+            }
+            //no updates */
+
             //save data
+            faces.Add(face);
 
             RecognizerEngine r = new RecognizerEngine(null);
-            r.TrainRecognizer(face);
+            r.TrainRecognizer(faces);
  
 
 
@@ -147,10 +172,29 @@ namespace FaceRecognision
                     file = reader.ReadBytes((int)stream.Length);
                 }
             }
-
+            
 
             RecognizerEngine r = new RecognizerEngine(null);
             int result = r.RecognizeUser(faceToSave);
+            MessageBox.Show("Face recognize: " + faces[result].UserName);
+        }
+
+        private void SaveData(object sender, EventArgs e)
+        {
+            string path = Application.StartupPath + "\\faces.xml";
+            FileStream outFile = File.Create(path);
+            XmlSerializer formatter = new XmlSerializer(faces.GetType());
+            formatter.Serialize(outFile, faces);
+        }
+        private void Load()
+        {
+            string file = Application.StartupPath + "\\faces.xml"; ;
+            XmlSerializer formatter = new XmlSerializer(faces.GetType());
+            FileStream aFile = new FileStream(file, FileMode.Open);
+            byte[] buffer = new byte[aFile.Length];
+            aFile.Read(buffer, 0, (int)aFile.Length);
+            MemoryStream stream = new MemoryStream(buffer);
+           faces= (List<Faces>)formatter.Deserialize(stream);
         }
     }
 }
